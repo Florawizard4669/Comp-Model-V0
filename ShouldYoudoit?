@@ -39,7 +39,7 @@ data <- data.frame(benefit, consequence, likely, weighted_benefit, result)
 
 # Plot using ggplot2, specifying that x is benefit and y is consequence. Likely is not listed on the graph itself. Titling it and such.
 
-ggplot(data, aes(x = benefit, y = consequence, color = result)) +
+plot <- ggplot(data, aes(x = benefit, y = consequence, color = result)) +
     geom_point(alpha = 0.6) +
     labs(title = "Should You Do It?",
          x = "Benefit", y = "Consequence", color = "Result") +
