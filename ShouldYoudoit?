@@ -1,0 +1,50 @@
+#Disclaimer, I did the majority of this in one day in a panic induced frenzy, so there are limited notes, as I repeatedly deleted and restarted it on my own laptop before actually uploading it here. 
+Also, Hello Dr. V!
+
+# Load necessary library
+if(!require(ggplot2)) install.packages("ggplot2", dependencies = TRUE)
+library(ggplot2)
+
+set.seed(123) # idk actually know what this does but I saw it put everywhere so I put it in too.
+
+#Herein i specify the generation of three different variables using normal distributions to represent risk-asessment in whether or not to make a given decision based loosely on a Monte Carlo type simulation. 
+
+n <- 3000 
+benefitavg <- 62
+benefitSD <- 18
+
+conavg <- 50 # these are arbitrary numbers for the benefit, consequence, and likely variables to use
+conSD <- 19
+
+benefit <- rnorm(n, benefitavg, benefitSD) 
+benefit <- pmin(pmax(benefit, 1), 100)
+
+consequence <- rnorm(n, conavg, conSD) 
+consequence <- pmin(pmax(consequence, 1), 100)
+
+likely <- rnorm(n, 0.5, 0.2) 
+likely <- pmin(pmax(likely, 0), 1)
+
+
+weighted_benefit <- benefit * likely # Calculate weighted benefit
+
+# Categorize results using such that if the risk significantly outwieghs the benefit, one will probably not do it, if the benefit is do low, one will not do it, and if the risk is too high, one will not do it. Otherwise, do the thing VV 
+
+result <- ifelse(consequence >= 85 & likely < 1.0 , "Too risky", 
+                 ifelse(benefit < 25 & likely >- .90, "Not Worth It", 
+                        ifelse(weighted_benefit > consequence - 15, "Do It", "Jaybe, Jaybe not")))
+
+# Combine data into a data frame
+data <- data.frame(benefit, consequence, likely, weighted_benefit, result)
+
+# Plot using ggplot2, specifying that x is benefit and y is consequence. Likely is not listed on the graph itself. Titling it and such.
+
+ggplot(data, aes(x = benefit, y = consequence, color = result)) +
+    geom_point(alpha = 0.6) +
+    labs(title = "Should You Do It?",
+         x = "Benefit", y = "Consequence", color = "Result") +
+    scale_color_manual(values = c("Too risky" = "red", "Do It" = "green", "Not Worth It" = "yellow", "Jaybe, Jaybe not" = "orange")) +
+    theme_minimal() #Here I specify the colors I want to use, and pick the theme. 
+
+# Save the plot as a png
+ggsave("Jaybenot.png", plot = plot, width = 8, height = 6, dpi = 300)
